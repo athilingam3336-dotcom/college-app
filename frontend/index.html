@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>College Portal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .logo { font-size: 40px; text-align: center; margin-bottom: 16px; }
+    h2 { text-align: center; font-size: 22px; color: #111; margin-bottom: 4px; }
+    .sub { text-align: center; font-size: 14px; color: #666; margin-bottom: 28px; }
+    .field { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid #d0d0d0; border-radius: 8px;
+      font-size: 14px; outline: none;
+    }
+    input:focus { border-color: #185FA5; }
+    button {
+      width: 100%; padding: 11px;
+      background: #185FA5; color: #fff; border: none;
+      border-radius: 8px; font-size: 15px; cursor: pointer;
+      margin-top: 6px;
+    }
+    button:hover { opacity: 0.88; }
+    .msg { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 14px; text-align: center; display: none; }
+    .success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .error   { background: #fdecea; color: #c62828; border: 1px solid #ffcdd2; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🎓</div>
+    <h2>College Portal</h2>
+    <p class="sub">Student login</p>
+
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" id="name" placeholder="e.g. Arun Kumar" />
+    </div>
+
+    <div class="field">
+      <label>Roll number</label>
+      <input type="text" id="roll" placeholder="e.g. CS2021001" />
+    </div>
+
+    <button onclick="doLogin()">Login</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    async function doLogin() {
+      const name = document.getElementById('name').value.trim();
+      const roll = document.getElementById('roll').value.trim();
+      const msg  = document.getElementById('msg');
+
+      msg.style.display = 'none';
+
+      if (!name || !roll) {
+        msg.className = 'msg error';
+        msg.textContent = 'Please fill all fields.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, roll_number: roll })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          msg.className = 'msg success';
+          msg.textContent = data.message;
+        } else {
+          msg.className = 'msg error';
+          msg.textContent = data.detail;
+        }
+      } catch {
+        msg.className = 'msg error';
+        msg.textContent = 'Server error. Try again.';
+      }
+      msg.style.display = 'block';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>
